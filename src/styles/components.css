@@ -1,0 +1,519 @@
+/* ── Project cards ────────────────────────────────── */
+.project-card {
+  position: relative;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: transform 100ms, border-color 150ms;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.project-card:active { transform: scale(0.97); }
+
+.card-top-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.card-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.3;
+  flex: 1;
+  min-width: 0;
+}
+
+.card-address {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+.card-meta {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.room-badge {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--accent);
+  background: rgba(59,130,246,0.12);
+  padding: 2px 7px;
+  border-radius: 10px;
+}
+
+.card-export-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  opacity: 0.4;
+  transition: opacity 150ms;
+}
+.project-card:active .card-export-btn,
+.card-export-btn:active { opacity: 1 !important; }
+
+/* ── Plan toolbar ─────────────────────────────────── */
+.plan-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.plan-toolbar::-webkit-scrollbar { display: none; }
+
+.tool-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 10px;
+  min-height: 44px;
+  min-width: 52px;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  font-family: 'Sora', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background 150ms, color 150ms, border-color 150ms;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.tool-btn .tool-icon { font-size: 18px; }
+.tool-btn:active { background: var(--surface2); }
+.tool-btn.tool-active {
+  background: rgba(59,130,246,0.15);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.toolbar-spacer { flex: 1; }
+
+.add-room-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  min-height: 44px;
+  background: var(--accent);
+  border: none;
+  border-radius: 10px;
+  font-family: 'Sora', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: opacity 150ms;
+}
+.add-room-btn:active { opacity: 0.85; }
+
+/* ── Canvas container ─────────────────────────────── */
+.canvas-container {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.plan-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+.canvas-zoom-badge {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  background: rgba(20,25,32,0.8);
+  padding: 3px 8px;
+  border-radius: 8px;
+  pointer-events: none;
+  backdrop-filter: blur(4px);
+}
+
+/* ── Plan action bar (room selected) ──────────────── */
+.plan-action-bar {
+  position: fixed;
+  bottom: var(--nav-h);
+  left: 0;
+  right: 0;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 12px 16px;
+  display: flex;
+  gap: 10px;
+  z-index: 40;
+  transform: translateY(100%);
+  transition: transform 250ms ease-out;
+}
+.plan-action-bar.visible { transform: translateY(0); }
+
+.plan-action-bar .action-confirm {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+}
+
+/* ── Elevations screen ────────────────────────────── */
+.room-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.room-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.room-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  cursor: pointer;
+  gap: 10px;
+  transition: background 150ms;
+}
+.room-section-header:active { background: var(--surface2); }
+
+.room-section-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  flex: 1;
+}
+
+.room-section-meta {
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--muted);
+}
+
+.room-chevron {
+  font-size: 14px;
+  color: var(--muted);
+  transition: transform 200ms;
+}
+.room-section.expanded .room-chevron { transform: rotate(90deg); }
+
+.room-section-body {
+  display: none;
+  border-top: 1px solid var(--border);
+}
+.room-section.expanded .room-section-body { display: block; }
+
+/* ── Elevation tab bar ────────────────────────────── */
+.elev-tab-bar {
+  display: flex;
+  background: var(--surface2);
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-bottom: 1px solid var(--border);
+}
+.elev-tab-bar::-webkit-scrollbar { display: none; }
+
+.elev-tab {
+  flex: 0 0 auto;
+  padding: 10px 16px;
+  min-height: 44px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-family: 'Sora', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 150ms, border-color 150ms;
+}
+.elev-tab.tab-active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.elev-content {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 80px;
+}
+
+/* ── Element cards ────────────────────────────────── */
+.element-card {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 100ms, border-color 150ms;
+  overflow: hidden;
+  touch-action: pan-y;
+}
+.element-card:active { transform: scale(0.97); }
+.element-card.selected {
+  border-color: var(--accent);
+  border-left: 3px solid var(--accent);
+}
+
+.element-icon { font-size: 22px; flex-shrink: 0; }
+
+.element-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.element-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.element-dims {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.element-position {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.element-note {
+  font-size: 12px;
+  color: var(--muted);
+  font-style: italic;
+  margin-top: 2px;
+}
+
+/* Swipe-delete reveal */
+.element-delete-reveal {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 70px;
+  background: var(--red);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  transform: translateX(100%);
+  transition: transform 200ms ease-out;
+  cursor: pointer;
+  border-radius: 0 12px 12px 0;
+}
+.element-card.swipe-reveal .element-delete-reveal { transform: translateX(0); }
+
+/* ── Element delete bar ───────────────────────────── */
+.element-delete-bar {
+  margin: 0 10px 10px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--red);
+}
+
+.element-delete-bar .delete-bar-inner {
+  display: flex;
+  align-items: center;
+}
+
+.element-delete-bar .delete-main-btn {
+  flex: 1;
+  min-height: 48px;
+  background: rgba(239,68,68,0.12);
+  border: none;
+  color: var(--red);
+  font-family: 'Sora', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 12px;
+  text-align: center;
+  transition: background 150ms;
+}
+.element-delete-bar .delete-main-btn:active { background: rgba(239,68,68,0.22); }
+
+.element-delete-bar .delete-confirm-row {
+  display: flex;
+  gap: 0;
+}
+.element-delete-bar .delete-cancel-btn {
+  flex: 1;
+  min-height: 48px;
+  background: var(--surface2);
+  border: none;
+  border-right: 1px solid var(--border);
+  color: var(--muted);
+  font-family: 'Sora', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.element-delete-bar .delete-confirm-btn {
+  flex: 1;
+  min-height: 48px;
+  background: var(--red);
+  border: none;
+  color: #fff;
+  font-family: 'Sora', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ── Add element palette ──────────────────────────── */
+.element-palette {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.palette-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 12px 6px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 150ms, border-color 150ms;
+  min-height: 70px;
+}
+.palette-item:active { background: var(--surface3); }
+.palette-item.palette-selected {
+  border-color: var(--accent);
+  background: rgba(59,130,246,0.12);
+}
+.palette-item-icon { font-size: 24px; }
+.palette-item-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.2;
+}
+.palette-item.palette-selected .palette-item-label { color: var(--accent); }
+
+/* ── Element form fields ──────────────────────────── */
+.element-form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+}
+
+.dims-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.position-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.position-desc {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+/* ── 3D viewer ────────────────────────────────────── */
+.viewer-container {
+  position: absolute;
+  inset: 0;
+  background: var(--bg);
+}
+
+.viewer-hint {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  color: var(--muted);
+  background: rgba(11,14,19,0.7);
+  padding: 4px 12px;
+  border-radius: 10px;
+  pointer-events: none;
+  white-space: nowrap;
+  backdrop-filter: blur(4px);
+}
+
+/* ── Plan screen layout ───────────────────────────── */
+.plan-screen-inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+}
