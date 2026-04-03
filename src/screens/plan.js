@@ -134,13 +134,22 @@ export function renderPlan() {
   confirmDeleteId = null;
   hideActionBar();
 
-  if (proj && proj.rooms.length === 0) {
-    setTool('draw');
-    spline.start();
-    showToast('Tap to place first corner', 'info');
-  }
+  // setupCanvasSize() was called while the screen was display:none so
+  // clientWidth/Height were 0. Re-measure after a rAF to let the browser
+  // complete the layout pass now that the screen is visible.
+  requestAnimationFrame(() => {
+    setupCanvasSize();
 
-  renderCanvas();
+    if (proj && proj.rooms.length === 0) {
+      setTool('draw');
+      showToast('Tap to place first corner', 'info');
+    } else if (activeTool === 'draw' && !spline.active) {
+      // Restore draw tool activation if user navigated away and back
+      spline.start();
+    }
+
+    renderCanvas();
+  });
 }
 
 function setupCanvasSize() {
@@ -397,20 +406,21 @@ function onPointerUp(e) {
   const prev = pointers[e.pointerId];
   delete pointers[e.pointerId];
 
-  const pids = Object.keys(pointers);
-  if (pids.length < 2) prevPinchDist = null;
+  const remainingCount = Object.keys(pointers).length;
+  if (remainingCount < 2) prevPinchDist = null;
 
-  if (isPanning && pids.length === 0) {
+  // Still have fingers down — not a tap
+  if (remainingCount > 0) {
     isPanning = false;
-    panStart  = null;
-    lastSinglePos = null;
     return;
   }
 
-  if (pids.length > 0) return; // still multi-touch
+  const wasPanning = isPanning;
+  isPanning     = false;
+  panStart      = null;
 
-  // Was this a tap? (minimal movement)
-  if (prev && lastSinglePos) {
+  // Was this a tap? (no pan movement AND no multi-touch)
+  if (!wasPanning && prev && lastSinglePos) {
     const dx = Math.abs(e.clientX - lastSinglePos.x);
     const dy = Math.abs(e.clientY - lastSinglePos.y);
     if (dx < 8 && dy < 8) {
@@ -418,8 +428,6 @@ function onPointerUp(e) {
     }
   }
 
-  isPanning = false;
-  panStart  = null;
   lastSinglePos = null;
 }
 
